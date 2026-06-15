@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eric's Superpower of Choice</title>
+<style>
+  :root {
+    --bg: #0f1117; --card: #1a1d27; --card2: #22263a;
+    --accent: #4f8ef7; --accent2: #a78bfa;
+    --green: #34d399; --amber: #fbbf24; --coral: #fb7185;
+    --text: #e8eaf0; --muted: #8b90a8; --border: rgba(255,255,255,0.08);
+    --gold: #f59e0b; --radius: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 17px; line-height: 1.65; min-height: 100vh; }
+  .screen { display: none; padding: 28px 20px 100px; max-width: 520px; margin: 0 auto; }
+  .screen.active { display: block; }
+  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+  .top-logo { display: flex; align-items: center; gap: 8px; }
+  .top-star { font-size: 22px; }
+  .top-title { font-size: 13px; color: var(--muted); letter-spacing: 0.04em; }
+  .premium-btn { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: rgba(245,158,11,0.15); color: var(--gold); border: 1px solid rgba(245,158,11,0.3); cursor: pointer; }
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15,17,23,0.97); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; padding: 10px 0 14px; z-index: 100; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 12px; border-radius: 10px; }
+  .nav-item.active .nav-icon { color: var(--accent); }
+  .nav-item.active .nav-label { color: var(--accent); }
+  .nav-icon { font-size: 22px; }
+  .nav-label { font-size: 10px; color: var(--muted); font-weight: 600; }
+  h1 { font-size: 26px; font-weight: 700; margin-bottom: 10px; line-height: 1.2; }
+  h2 { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+  h3 { font-size: 17px; font-weight: 600; margin-bottom: 10px; }
+  p { font-size: 16px; margin-bottom: 14px; line-height: 1.7; }
+  .hero { text-align: center; padding: 16px 0 24px; }
+  .hero-icon { font-size: 56px; margin-bottom: 12px; }
+  .hero-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .hero-sub { font-size: 16px; color: var(--muted); margin-bottom: 24px; }
+  .mission { font-size: 15px; color: var(--muted); font-style: italic; margin-bottom: 28px; padding: 12px 16px; border-left: 3px solid var(--accent); text-align: left; }
+  .section-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; margin-top: 24px; }
+  .group-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .group-card { background: var(--card); border: 2px solid var(--border); border-radius: 20px; padding: 20px 14px; cursor: pointer; text-align: center; transition: border-color 0.15s; }
+  .group-card.child { border-color: rgba(52,211,153,0.35); }
+  .group-card.teen { border-color: rgba(251,191,36,0.35); }
+  .group-card.parent { border-color: rgba(79,142,247,0.35); }
+  .group-card.teacher { border-color: rgba(167,139,250,0.35); }
+  .gc-icon { font-size: 36px; margin-bottom: 8px; }
+  .gc-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .gc-sub { font-size: 12px; color: var(--muted); }
+  .tool-list { display: flex; flex-direction: column; gap: 10px; }
+  .tool-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: pointer; display: flex; align-items: center; gap: 14px; }
+  .tool-card-icon { font-size: 28px; flex-shrink: 0; }
+  .tool-card-content { flex: 1; }
+  .tool-card-title { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+  .tool-card-sub { font-size: 13px; color: var(--muted); }
+  .tool-card-arrow { font-size: 16px; color: var(--muted); }
+  .tool-card.premium { border-color: rgba(245,158,11,0.25); }
+  .premium-lock { font-size: 12px; color: var(--gold); font-weight: 600; }
+  .badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-bottom: 16px; }
+  .badge-child { background: rgba(52,211,153,0.15); color: var(--green); }
+  .badge-teen { background: rgba(251,191,36,0.15); color: var(--amber); }
+  .badge-parent { background: rgba(79,142,247,0.15); color: var(--accent); }
+  .badge-teacher { background: rgba(167,139,250,0.15); color: var(--accent2); }
+  .quote { border-left: 3px solid var(--accent); padding: 12px 16px; margin: 16px 0; font-style: italic; color: var(--muted); font-size: 15px; line-height: 1.7; }
+  .quote.green { border-left-color: var(--green); }
+  .quote.amber { border-left-color: var(--amber); }
+  .quote.gold { border-left-color: var(--gold); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; }
+  .card-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .card-body { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .btn { display: block; width: 100%; background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; color: var(--text); font-size: 15px; text-align: left; cursor: pointer; margin-bottom: 10px; font-family: inherit; }
+  .btn.selected { border-color: var(--green); background: rgba(52,211,153,0.1); }
+  .btn-primary { background: var(--accent); border: none; color: #fff; font-weight: 600; text-align: center; border-radius: 12px; padding: 15px; font-size: 16px; cursor: pointer; width: 100%; margin-top: 8px; display: none; font-family: inherit; }
+  .btn-primary.show { display: block; }
+  .btn-primary.green { background: #059669; }
+  .btn-primary.amber { background: #d97706; }
+  .btn-primary.purple { background: #7c3aed; }
+  .btn-back { background: transparent; border: 1px solid var(--border); color: var(--muted); font-size: 14px; border-radius: 10px; padding: 10px 16px; cursor: pointer; margin-top: 8px; width: 100%; font-family: inherit; }
+  .feedback { border-radius: 12px; padding: 14px 16px; margin-top: 12px; font-size: 15px; line-height: 1.6; display: none; }
+  .feedback.show { display: block; }
+  .feedback.green { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.3); color: var(--green); }
+  .feedback.amber { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); color: var(--amber); }
+  .feedback.blue { background: rgba(79,142,247,0.1); border: 1px solid rgba(79,142,247,0.3); color: #93c5fd; }
+  .feedback.purple { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); color: var(--accent2); }
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+  .step-box { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 10px; display: flex; gap: 14px; }
+  .step-num { font-size: 20px; font-weight: 700; color: var(--green); flex-shrink: 0; min-width: 28px; }
+  .step-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .step-body { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .feeling-btn { display: flex; align-items: center; gap: 14px; width: 100%; background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 16px; cursor: pointer; margin-bottom: 10px; text-align: left; font-family: inherit; color: var(--text); }
+  .feeling-btn.selected { border-color: var(--green); background: rgba(52,211,153,0.08); }
+  .feeling-emoji { font-size: 32px; flex-shrink: 0; }
+  .feeling-label { font-size: 17px; font-weight: 600; }
+  .feeling-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .calm-card { background: var(--card); border: 2px solid var(--border); border-radius: 18px; padding: 20px; margin-bottom: 12px; cursor: pointer; }
+  .calm-card.open { border-color: var(--accent); }
+  .calm-header { display: flex; align-items: center; gap: 12px; }
+  .calm-icon { font-size: 32px; }
+  .calm-title { font-size: 17px; font-weight: 700; }
+  .calm-steps { display: none; margin-top: 14px; }
+  .calm-card.open .calm-steps { display: block; }
+  .calm-step { padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; gap: 10px; }
+  .calm-step:last-child { border-bottom: none; }
+  .calm-step-num { font-size: 18px; font-weight: 700; color: var(--accent); width: 28px; flex-shrink: 0; }
+  .calm-step-text { font-size: 15px; }
+  .scenario-box { background: var(--card2); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin: 20px 0; font-size: 15px; line-height: 1.8; }
+  .scenario-label { font-size: 12px; font-weight: 600; color: var(--amber); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .tool-box { background: var(--card); border: 1px solid rgba(52,211,153,0.3); border-radius: var(--radius); padding: 16px 18px; margin-top: 16px; }
+  .tool-title { font-size: 13px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .tool-body { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .honest-box { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin: 20px 0; }
+  .honest-title { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+  .honest-body { font-size: 15px; line-height: 1.7; }
+  .compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .compare-box { border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.6; }
+  .compare-no { background: rgba(251,113,133,0.08); border: 1px solid rgba(251,113,133,0.25); color: var(--coral); }
+  .compare-yes { background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.25); color: var(--green); }
+  .compare-label { font-size: 11px; font-weight: 600; margin-bottom: 6px; opacity: 0.8; }
+  .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .nav-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: pointer; text-align: center; }
+  .nav-card-icon { font-size: 28px; margin-bottom: 6px; }
+  .nav-card-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .nav-card-sub { font-size: 12px; color: var(--muted); }
+  .about-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 12px; }
+  .about-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--accent); }
+  .about-body { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .footer { text-align: center; font-size: 13px; color: var(--muted); padding: 20px; border-top: 1px solid var(--border); margin-top: 20px; }
+  .premium-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-bottom: 20px; background: rgba(245,158,11,0.15); color: var(--gold); border: 1px solid rgba(245,158,11,0.3); }
+  .plan-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin-bottom: 14px; }
+  .plan-card.featured { border-color: var(--gold); }
+  .plan-label { font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 6px; color: var(--muted); }
+  .plan-price { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
+  .plan-period { font-size: 14px; color: var(--muted); margin-bottom: 14px; }
+  .plan-features { list-style: none; margin-bottom: 16px; }
+  .plan-features li { font-size: 14px; padding: 5px 0; color: var(--muted); }
+  .plan-features li.included { color: var(--text); }
+  .btn-gold { background: var(--gold); border: none; color: #000; font-weight: 700; text-align: center; border-radius: 12px; padding: 15px; font-size: 16px; cursor: pointer; width: 100%; margin-bottom: 8px; font-family: inherit; }
+  .feedback-faces { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .face-btn { font-size: 32px; background: var(--card2); border: 2px solid var(--border); border-radius: 14px; padding: 10px 16px; cursor: pointer; transition: border-color 0.15s, transform 0.1s; }
+  .face-btn.selected { border-color: var(--green); background: rgba(52,211,153,0.12); transform: scale(1.08); }
+  .face-btn-wide { font-size: 15px; font-weight: 600; background: var(--card2); border: 2px solid var(--border); border-radius: 12px; padding: 12px 16px; cursor: pointer; flex: 1; min-width: 90px; color: var(--text); font-family: inherit; }
+  .face-btn-wide.selected { border-color: var(--green); background: rgba(52,211,153,0.12); }
+  .feedback-input { width: 100%; background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; color: var(--text); font-size: 15px; font-family: inherit; resize: vertical; margin-top: 10px; }
+  .feedback-input:focus { outline: none; border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <div class="top-bar">
+    <div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Eric's Superpower of Choice</span></div>
+    <div class="premium-btn" onclick="goTo('screen-premium')">⭐ Premium</div>
+  </div>
+  <div class="hero">
+    <div class="hero-icon">🌟</div>
+    <div class="hero-title">Eric's Superpower of Choice</div>
+    <div class="hero-sub">Pause. Think. Choose. Grow.</div>
+    <div class="mission">"Every situation gives you a choice. Every choice creates a consequence. Better choices create better outcomes."</div>
+  </div>
+  <div class="section-label">Who are you?</div>
+  <div class="group-grid">
+    <div class="group-card child" onclick="goTo('screen-child')"><div class="gc-icon">🧒</div><div class="gc-title">I'm a Child</div><div class="gc-sub">Ages 6-10</div></div>
+    <div class="group-card teen" onclick="goTo('screen-teen')"><div class="gc-icon">🧑</div><div class="gc-title">I'm a Teen</div><div class="gc-sub">Ages 11-25</div></div>
+    <div class="group-card parent" onclick="goTo('screen-parent')"><div class="gc-icon">👨‍👩‍👧</div><div class="gc-title">I'm a Parent</div><div class="gc-sub">Caregivers welcome</div></div>
+    <div class="group-card teacher" onclick="goTo('screen-teacher')"><div class="gc-icon">🏫</div><div class="gc-title">I'm an Educator</div><div class="gc-sub">Teachers and counselors</div></div>
+  </div>
+  <div class="section-label">Quick tools</div>
+  <div class="tool-list">
+    <div class="tool-card" onclick="goTo('screen-feelings')"><div class="tool-card-icon">💭</div><div class="tool-card-content"><div class="tool-card-title">Understanding Feelings</div><div class="tool-card-sub">What your feelings are telling you</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-scenarios')"><div class="tool-card-icon">🎮</div><div class="tool-card-content"><div class="tool-card-title">Real Life Scenarios</div><div class="tool-card-sub">Practice real situations</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-repair')"><div class="tool-card-icon">🔧</div><div class="tool-card-content"><div class="tool-card-title">Repair and Reflection</div><div class="tool-card-sub">After something goes wrong</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card premium" onclick="goTo('screen-premium')"><div class="tool-card-icon">⭐</div><div class="tool-card-content"><div class="tool-card-title">Premium Tools</div><div class="tool-card-sub">Family sessions, worksheets, tracker</div></div><div class="premium-lock">⭐ Premium</div></div>
+    <div class="tool-card" onclick="goTo('screen-feedback')"><div class="tool-card-icon">💌</div><div class="tool-card-content"><div class="tool-card-title">Share Your Thoughts</div><div class="tool-card-sub">Tell us what you think</div></div><div class="tool-card-arrow">›</div></div>
+  </div>
+  <div class="footer">© 2026 Charlie. Eric's Superpower of Choice. All Rights Reserved.<br>
+  <span style="cursor:pointer;color:var(--accent);" onclick="goTo('screen-legal')">Terms of Use</span> |
+  <span style="cursor:pointer;color:var(--accent);" onclick="goTo('screen-privacy')">Privacy Policy</span> |
+  <span style="cursor:pointer;color:var(--accent);" onclick="goTo('screen-about')">About</span></div>
+</div>
+
+<!-- CHILD -->
+<div class="screen" id="screen-child">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Child Mode</span></div></div>
+  <span class="badge badge-child">🧒 This is YOUR place!</span>
+  <div style="font-size:56px;text-align:center;margin-bottom:12px;">🌟</div>
+  <h1 style="text-align:center;">Hey! Welcome!</h1>
+  <p>This place was made just for you. You will learn about your feelings. You will find tools to help when things get hard. And you will discover your very own superpower.</p>
+  <div class="nav-grid">
+    <div class="nav-card" onclick="goTo('screen-child-feelings')"><div class="nav-card-icon">💭</div><div class="nav-card-title">My Feelings</div><div class="nav-card-sub">What feelings tell me</div></div>
+    <div class="nav-card" onclick="goTo('screen-child-calm')"><div class="nav-card-icon">😮‍💨</div><div class="nav-card-title">Calm Down Tools</div><div class="nav-card-sub">Help when things get big</div></div>
+    <div class="nav-card" onclick="goTo('screen-child-choices')"><div class="nav-card-icon">⚡</div><div class="nav-card-title">My Choices</div><div class="nav-card-sub">My superpower</div></div>
+    <div class="nav-card" onclick="goTo('screen-child-scenarios')"><div class="nav-card-icon">🎮</div><div class="nav-card-title">Practice</div><div class="nav-card-sub">Real life situations</div></div>
+  </div>
+  <button class="btn-back" onclick="goTo('screen-home')">← Back to home</button>
+</div>
+
+<!-- CHILD FEELINGS -->
+<div class="screen" id="screen-child-feelings">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Child Mode</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">💭</div>
+  <h2>Your feelings are not the problem.</h2>
+  <p>Feelings are like little messages from inside you. No feeling is bad. Not even the big scary ones.</p>
+  <div class="quote green">"Feelings give us information. We get to choose what we do next."</div>
+  <p>Tap a feeling to learn what it might be telling you!</p>
+  <button class="feeling-btn" onclick="childFeelingTap('angry',this)"><span class="feeling-emoji">😠</span><div><div class="feeling-label">Angry</div><div class="feeling-sub">Tap to learn more</div></div></button>
+  <button class="feeling-btn" onclick="childFeelingTap('worried',this)"><span class="feeling-emoji">😟</span><div><div class="feeling-label">Worried</div><div class="feeling-sub">Tap to learn more</div></div></button>
+  <button class="feeling-btn" onclick="childFeelingTap('sad',this)"><span class="feeling-emoji">😢</span><div><div class="feeling-label">Sad</div><div class="feeling-sub">Tap to learn more</div></div></button>
+  <button class="feeling-btn" onclick="childFeelingTap('excited',this)"><span class="feeling-emoji">😄</span><div><div class="feeling-label">Excited</div><div class="feeling-sub">Tap to learn more</div></div></button>
+  <div id="child-feeling-fb" class="feedback blue"></div>
+  <button class="btn-primary green" id="child-feeling-next" onclick="goTo('screen-child')">Back to my page →</button>
+  <button class="btn-back" onclick="goTo('screen-child')">← Back</button>
+</div>
+
+<!-- CHILD CALM -->
+<div class="screen" id="screen-child-calm">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Child Mode</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">😮‍💨</div>
+  <h2>Calm Down Tools</h2>
+  <p>Sometimes feelings get really BIG. These tools help your body feel safer. Tap any one to try it!</p>
+  <div class="calm-card" onclick="this.classList.toggle('open')"><div class="calm-header"><span class="calm-icon">😮‍💨</span><span class="calm-title">The Big Breath</span></div><div class="calm-steps"><div class="calm-step"><div class="calm-step-num">1</div><div class="calm-step-text">Breathe IN slowly — count to 4</div></div><div class="calm-step"><div class="calm-step-num">2</div><div class="calm-step-text">Hold it — count to 4</div></div><div class="calm-step"><div class="calm-step-num">3</div><div class="calm-step-text">Breathe OUT slowly — count to 4</div></div><div class="calm-step"><div class="calm-step-num">4</div><div class="calm-step-text">Do it 3 times. Feel your body slow down.</div></div></div></div>
+  <div class="calm-card" onclick="this.classList.toggle('open')"><div class="calm-header"><span class="calm-icon">👀</span><span class="calm-title">Look Around — 5 Things</span></div><div class="calm-steps"><div class="calm-step"><div class="calm-step-num">1</div><div class="calm-step-text">Find 5 things you can SEE</div></div><div class="calm-step"><div class="calm-step-num">2</div><div class="calm-step-text">Find 4 things you can TOUCH</div></div><div class="calm-step"><div class="calm-step-num">3</div><div class="calm-step-text">Find 3 things you can HEAR</div></div><div class="calm-step"><div class="calm-step-num">4</div><div class="calm-step-text">This pulls your brain back to right now.</div></div></div></div>
+  <div class="calm-card" onclick="this.classList.toggle('open')"><div class="calm-header"><span class="calm-icon">🚶</span><span class="calm-title">Move Your Body</span></div><div class="calm-steps"><div class="calm-step"><div class="calm-step-num">1</div><div class="calm-step-text">Do 10 jumping jacks</div></div><div class="calm-step"><div class="calm-step-num">2</div><div class="calm-step-text">Shake your whole body!</div></div><div class="calm-step"><div class="calm-step-num">3</div><div class="calm-step-text">Take a short walk if you can</div></div><div class="calm-step"><div class="calm-step-num">4</div><div class="calm-step-text">Moving your body moves the big feeling out.</div></div></div></div>
+  <button class="btn-back" onclick="goTo('screen-child')">← Back</button>
+</div>
+
+<!-- CHILD CHOICES -->
+<div class="screen" id="screen-child-choices">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Child Mode</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">⚡</div>
+  <h2>You always have a choice.</h2>
+  <p>Something happens. You feel something big. And then you get to choose what happens next. That is your superpower!</p>
+  <div class="step-box"><div class="step-num">1</div><div><div class="step-title">🫀 Body</div><div class="step-body">Notice what your body feels. Tight? Hot? Jumpy?</div></div></div>
+  <div class="step-box"><div class="step-num">2</div><div><div class="step-title">😠 Feeling</div><div class="step-body">Name the feeling. Angry? Sad? Scared?</div></div></div>
+  <div class="step-box"><div class="step-num">3</div><div><div class="step-title">💡 Need</div><div class="step-body">What do I need right now? Space? Help?</div></div></div>
+  <div class="step-box"><div class="step-num">4</div><div><div class="step-title">⚡ Choice</div><div class="step-body">What do I want to do next? This is MY superpower!</div></div></div>
+  <div class="quote green">"You will not always make the perfect choice. But you can always try again."</div>
+  <button class="btn-back" onclick="goTo('screen-child')">← Back</button>
+</div>
+
+<!-- CHILD SCENARIOS -->
+<div class="screen" id="screen-child-scenarios">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Child Mode</span></div></div>
+  <h2>Real Life Practice</h2>
+  <p>These are real situations. Pick one and practice what you would do!</p>
+  <button class="btn" onclick="goTo('screen-cs-leftout')">😢 Someone left me out</button>
+  <button class="btn" onclick="goTo('screen-cs-losing')">😤 I lost a game</button>
+  <button class="btn" onclick="goTo('screen-cs-mistake')">😳 I made a mistake</button>
+  <button class="btn" onclick="goTo('screen-cs-meanwords')">😔 Someone said something mean</button>
+  <button class="btn-back" onclick="goTo('screen-child')">← Back</button>
+</div>
+
+<div class="screen" id="screen-cs-leftout">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Practice</span></div></div>
+  <div class="scenario-box"><div class="scenario-label">What happened</div>You go outside for recess. Your friends are playing a game. You run over but they say the teams are full. Your stomach feels heavy.</div>
+  <h3>What do you do next?</h3>
+  <button class="btn" onclick="cScenario('leftout','cry',this)">😢 Cry and walk away alone</button>
+  <button class="btn" onclick="cScenario('leftout','ask',this)">🙋 Ask if I can join next round</button>
+  <button class="btn" onclick="cScenario('leftout','other',this)">🎯 Find something else fun to do</button>
+  <div id="cs-leftout-fb" class="feedback"></div>
+  <div id="cs-leftout-tool" class="tool-box" style="display:none"><div class="tool-title">🧰 Your tool</div><div class="tool-body">When you feel left out — name it first. Then make a choice. Asking calmly or finding something else both keep your day from getting worse.</div></div>
+  <button class="btn-primary green" id="cs-leftout-next" onclick="goTo('screen-child-scenarios')">Try another →</button>
+  <button class="btn-back" onclick="goTo('screen-child-scenarios')">← Back</button>
+</div>
+
+<div class="screen" id="screen-cs-losing">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Practice</span></div></div>
+  <div class="scenario-box"><div class="scenario-label">What happened</div>You are playing a game and you lose. Your face gets hot. You want to flip the board.</div>
+  <h3>What do you do next?</h3>
+  <button class="btn" onclick="cScenario('losing','flip',this)">😡 Flip the board</button>
+  <button class="btn" onclick="cScenario('losing','breath',this)">😤 Take a big breath and say good game</button>
+  <button class="btn" onclick="cScenario('losing','leave',this)">🚶 Walk away quietly to cool down</button>
+  <div id="cs-losing-fb" class="feedback"></div>
+  <div id="cs-losing-tool" class="tool-box" style="display:none"><div class="tool-title">🧰 Your tool</div><div class="tool-body">Losing feels awful. Taking a breath or walking away gives your feelings somewhere to go without making things worse.</div></div>
+  <button class="btn-primary green" id="cs-losing-next" onclick="goTo('screen-child-scenarios')">Try another →</button>
+  <button class="btn-back" onclick="goTo('screen-child-scenarios')">← Back</button>
+</div>
+
+<div class="screen" id="screen-cs-mistake">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Practice</span></div></div>
+  <div class="scenario-box"><div class="scenario-label">What happened</div>You accidentally knocked over your friend's water bottle. It spilled all over their drawing. They look really upset.</div>
+  <h3>What do you do next?</h3>
+  <button class="btn" onclick="cScenario('mistake','blame',this)">😬 Say it was an accident and walk away</button>
+  <button class="btn" onclick="cScenario('mistake','sorry',this)">💙 Say sorry and help clean it up</button>
+  <button class="btn" onclick="cScenario('mistake','fix',this)">🔧 Ask how you can help fix it</button>
+  <div id="cs-mistake-fb" class="feedback"></div>
+  <div id="cs-mistake-tool" class="tool-box" style="display:none"><div class="tool-title">🧰 Your tool</div><div class="tool-body">Mistakes happen. Saying sorry AND helping fix it shows real courage. That is repair.</div></div>
+  <button class="btn-primary green" id="cs-mistake-next" onclick="goTo('screen-child-scenarios')">Try another →</button>
+  <button class="btn-back" onclick="goTo('screen-child-scenarios')">← Back</button>
+</div>
+
+<div class="screen" id="screen-cs-meanwords">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Practice</span></div></div>
+  <div class="scenario-box"><div class="scenario-label">What happened</div>A kid at school says something really mean. Your face gets hot and your eyes start to water.</div>
+  <h3>What do you do next?</h3>
+  <button class="btn" onclick="cScenario('meanwords','back',this)">😠 Say something mean back</button>
+  <button class="btn" onclick="cScenario('meanwords','walk',this)">🚶 Walk away and tell a trusted adult later</button>
+  <button class="btn" onclick="cScenario('meanwords','calm',this)">✋ Say calmly that was not okay and walk away</button>
+  <div id="cs-meanwords-fb" class="feedback"></div>
+  <div id="cs-meanwords-tool" class="tool-box" style="display:none"><div class="tool-title">🧰 Your tool</div><div class="tool-body">Mean words hurt. Saying that was not okay and walking away takes their power. Telling a trusted adult means you are not carrying it alone.</div></div>
+  <button class="btn-primary green" id="cs-meanwords-next" onclick="goTo('screen-child-scenarios')">Try another →</button>
+  <button class="btn-back" onclick="goTo('screen-child-scenarios')">← Back</button>
+</div>
+
+<!-- TEEN -->
+<div class="screen" id="screen-teen">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Teen Mode</span></div></div>
+  <span class="badge badge-teen">🧑 Teen and Young Adult</span>
+  <div style="font-size:48px;margin-bottom:14px;">⚡</div>
+  <h1>No lectures. Real tools.</h1>
+  <p>Built for where you actually are — not where adults think you should be.</p>
+  <div class="quote amber">"You are not a problem to be solved. You are a person figuring things out."</div>
+  <div class="tool-list">
+    <div class="tool-card" onclick="goTo('screen-teen-feelings')"><div class="tool-card-icon">💭</div><div class="tool-card-content"><div class="tool-card-title">Understanding My Feelings</div><div class="tool-card-sub">What your emotions are really telling you</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-teen-theorem')"><div class="tool-card-icon">⚡</div><div class="tool-card-content"><div class="tool-card-title">The Theorem</div><div class="tool-card-sub">A 4-step tool for any hard moment</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-teen-scenarios')"><div class="tool-card-icon">🎮</div><div class="tool-card-content"><div class="tool-card-title">Real Life Scenarios</div><div class="tool-card-sub">Practice real situations</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-teen-missing')"><div class="tool-card-icon">🧰</div><div class="tool-card-content"><div class="tool-card-title">Missing Tool</div><div class="tool-card-sub">Find what skill you need most</div></div><div class="tool-card-arrow">›</div></div>
+  </div>
+  <button class="btn-back" onclick="goTo('screen-home')">← Back to home</button>
+</div>
+
+<div class="screen" id="screen-teen-feelings">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Teen Mode</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">💭</div>
+  <h2>Your feelings are not the problem.</h2>
+  <p>Every feeling you have makes sense. Feelings are not weakness. They are information.</p>
+  <div class="quote amber">"The problem is never the feeling. The problem is when the feeling makes the choice instead of you."</div>
+  <button class="feeling-btn" onclick="teenFeelingTap('frustration',this)"><span class="feeling-emoji">😤</span><div><div class="feeling-label">Frustration or Anger</div><div class="feeling-sub">Tap to learn more</div></div></button>
+  <button class="feeling-btn" onclick="teenFeelingTap('anxiety',this)"><span class="feeling-emoji">😰</span><div><div class="feeling-label">Anxiety or Overwhelm</div><div class="feeling-sub">Tap to learn more</div></div></button>
+  <button class="feeling-btn" onclick="teenFeelingTap('sadness',this)"><span class="feeling-emoji">😔</span><div><div class="feeling-label">Sadness or Emptiness</div><div class="feeling-sub">Tap to learn more</div></div></button>
+  <button class="feeling-btn" onclick="teenFeelingTap('shame',this)"><span class="feeling-emoji">😳</span><div><div class="feeling-label">Embarrassment or Shame</div><div class="feeling-sub">Tap to learn more</div></div></button>
+  <div id="teen-feeling-fb" class="feedback amber"></div>
+  <button class="btn-primary amber" id="teen-feeling-next" onclick="goTo('screen-teen')">Back to my tools →</button>
+  <button class="btn-back" onclick="goTo('screen-teen')">← Back</button>
+</div>
+
+<div class="screen" id="screen-teen-theorem">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Teen Mode</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">⚡</div>
+  <h2>Four steps. Any situation. Every time.</h2>
+  <div class="card" style="border-color:rgba(251,191,36,0.4);"><div class="card-title" style="color:var(--amber);font-size:18px;">Body → Feeling → Need → Choice</div></div>
+  <div class="step-box"><div class="step-num" style="color:var(--amber);">1</div><div><div class="step-title">Body</div><div class="step-body">Something happens. Your body reacts first — chest tight, face hot, heart racing. Notice it.</div></div></div>
+  <div class="step-box"><div class="step-num" style="color:var(--amber);">2</div><div><div class="step-title">Feeling</div><div class="step-body">Name what you feel. Angry. Embarrassed. Scared. Naming it gives you distance from it.</div></div></div>
+  <div class="step-box"><div class="step-num" style="color:var(--amber);">3</div><div><div class="step-title">Need</div><div class="step-body">Under every feeling is a need. What do you actually need right now?</div></div></div>
+  <div class="step-box"><div class="step-num" style="color:var(--amber);">4</div><div><div class="step-title">Choice</div><div class="step-body">This is your superpower. What happens next is always your choice.</div></div></div>
+  <div class="quote amber">"You will not always get it right. But you can always choose better than last time."</div>
+  <button class="btn-back" onclick="goTo('screen-teen')">← Back</button>
+</div>
+
+<div class="screen" id="screen-teen-scenarios">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Teen Mode</span></div></div>
+  <h2>Real Situations. Real Practice.</h2>
+  <button class="btn" onclick="goTo('screen-ts-ghosted')">📵 Ghosted by a friend</button>
+  <button class="btn" onclick="goTo('screen-ts-parent')">😤 Conflict with a parent</button>
+  <button class="btn" onclick="goTo('screen-ts-overwhelmed')">🌊 Completely overwhelmed</button>
+  <button class="btn-back" onclick="goTo('screen-teen')">← Back</button>
+</div>
+
+<div class="screen" id="screen-ts-ghosted">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Teen Scenarios</span></div></div>
+  <div class="scenario-box"><div class="scenario-label">The situation</div>A close friend has gone silent. No texts back. But they are posting on social media like everything is fine. You feel confused and hurt.</div>
+  <h3>What do you do?</h3>
+  <button class="btn" onclick="tScenario('ghosted','keep',this)">📱 Keep texting until they respond</button>
+  <button class="btn" onclick="tScenario('ghosted','direct',this)">💬 Send one direct message asking if everything is okay</button>
+  <button class="btn" onclick="tScenario('ghosted','space',this)">🚶 Give it space and focus on other people</button>
+  <div id="ts-ghosted-fb" class="feedback"></div>
+  <div id="ts-ghosted-tool" class="tool-box" style="display:none"><div class="tool-title">🧰 Your tool</div><div class="tool-body">Being ghosted hurts. One direct honest message is fair — then the ball is in their court. You cannot control their behavior. You can control yours.</div></div>
+  <button class="btn-primary amber" id="ts-ghosted-next" onclick="goTo('screen-teen-scenarios')">Try another →</button>
+  <button class="btn-back" onclick="goTo('screen-teen-scenarios')">← Back</button>
+</div>
+
+<div class="screen" id="screen-ts-parent">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Teen Scenarios</span></div></div>
+  <div class="scenario-box"><div class="scenario-label">The situation</div>You just got home after a rough day. Your parent immediately starts asking about homework and chores. You snap — Can you just leave me alone?</div>
+  <h3>What do you do next?</h3>
+  <button class="btn" onclick="tScenario('tsparent','nothing',this)">😶 Nothing — they should understand</button>
+  <button class="btn" onclick="tScenario('tsparent','calm',this)">💬 Wait until calm — then explain you needed space</button>
+  <button class="btn" onclick="tScenario('tsparent','ask',this)">💙 Ask for 10 minutes before talking</button>
+  <div id="ts-tsparent-fb" class="feedback"></div>
+  <div id="ts-tsparent-tool" class="tool-box" style="display:none"><div class="tool-title">🧰 Your tool</div><div class="tool-body">Your need for space was real. How it came out was hard. Waiting until calm and explaining what you needed keeps the door open.</div></div>
+  <button class="btn-primary amber" id="ts-tsparent-next" onclick="goTo('screen-teen-scenarios')">Try another →</button>
+  <button class="btn-back" onclick="goTo('screen-teen-scenarios')">← Back</button>
+</div>
+
+<div class="screen" id="screen-ts-overwhelmed">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Teen Scenarios</span></div></div>
+  <div class="scenario-box"><div class="scenario-label">The situation</div>Everything is piling up at once. School. Family tension. A friendship that feels off. You are not sleeping well. You feel like you cannot keep up.</div>
+  <h3>What feels most true for you right now?</h3>
+  <button class="btn" onclick="tScenario('overwhelmed','alone',this)">😶 I keep it to myself — nobody would understand</button>
+  <button class="btn" onclick="tScenario('overwhelmed','one',this)">💙 I tell one person I trust — even just a little</button>
+  <button class="btn" onclick="tScenario('overwhelmed','small',this)">🪜 I focus on one small thing I can actually do today</button>
+  <div id="ts-overwhelmed-fb" class="feedback"></div>
+  <div id="ts-overwhelmed-tool" class="tool-box" style="display:none"><div class="tool-title">🧰 Your tool</div><div class="tool-body">When everything feels too big — tell one person even a little of what is going on. And do one small thing you can finish today. Both remind your brain that you are not stuck.</div></div>
+  <button class="btn-primary amber" id="ts-overwhelmed-next" onclick="goTo('screen-teen-scenarios')">Try another →</button>
+  <button class="btn-back" onclick="goTo('screen-teen-scenarios')">← Back</button>
+</div>
+
+<div class="screen" id="screen-teen-missing">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Teen Mode</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">🧰</div>
+  <h2>You are not the problem. You might be missing a tool.</h2>
+  <div class="quote amber">"A plumber with one wrench is not a bad plumber. They just need more tools for the job."</div>
+  <h3>Find your missing tool:</h3>
+  <button class="btn" onclick="missingTool('calm',this)">🌊 I cannot calm down once I am upset</button>
+  <button class="btn" onclick="missingTool('words',this)">💬 I know what I feel but I cannot say it right</button>
+  <button class="btn" onclick="missingTool('repair',this)">🔧 I mess up and I do not know how to fix it</button>
+  <button class="btn" onclick="missingTool('ask',this)">🙋 I need help but I do not know how to ask</button>
+  <div id="missing-fb" class="feedback amber"></div>
+  <button class="btn-primary amber" id="missing-next" onclick="goTo('screen-teen')">Back to my tools →</button>
+  <button class="btn-back" onclick="goTo('screen-teen')">← Back</button>
+</div>
+
+<!-- PARENT -->
+<div class="screen" id="screen-parent">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Parent Mode</span></div></div>
+  <span class="badge badge-parent">👨‍👩‍👧 Parents and Caregivers</span>
+  <div style="font-size:48px;margin-bottom:14px;">💙</div>
+  <h1>You are not alone in this.</h1>
+  <p>Tools that help you understand your child — and help your child understand you.</p>
+  <div class="quote">"The goal is not a perfect child. The goal is a connected family."</div>
+  <div class="tool-list">
+    <div class="tool-card" onclick="goTo('screen-parent-understand')"><div class="tool-card-icon">🧠</div><div class="tool-card-content"><div class="tool-card-title">Understanding Your Child</div><div class="tool-card-sub">Why they do what they do</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-parent-language')"><div class="tool-card-icon">💬</div><div class="tool-card-content"><div class="tool-card-title">What to Say</div><div class="tool-card-sub">Words that open doors</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-parent-scenarios')"><div class="tool-card-icon">🎮</div><div class="tool-card-content"><div class="tool-card-title">Family Scenarios</div><div class="tool-card-sub">Practice before hard moments</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-parent-repair')"><div class="tool-card-icon">🔧</div><div class="tool-card-content"><div class="tool-card-title">Repair and Reflection</div><div class="tool-card-sub">After hard moments</div></div><div class="tool-card-arrow">›</div></div>
+  </div>
+  <button class="btn-back" onclick="goTo('screen-home')">← Back to home</button>
+</div>
+
+<div class="screen" id="screen-parent-understand">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Parent Mode</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">🧠</div>
+  <h2>Your child is not giving you a hard time. They are having a hard time.</h2>
+  <div class="quote">"Behavior is always communication. The question is — what is it trying to say?"</div>
+  <div class="card" style="border-color:rgba(79,142,247,0.4)"><div class="card-title">Children act out because they are missing words.</div><div class="card-body">Their behavior IS their language. It is the only tool they have right now.</div></div>
+  <div class="card" style="border-color:rgba(79,142,247,0.4)"><div class="card-title">You are not failing. You are overwhelmed.</div><div class="card-body">When you are exhausted and stretched thin your patience runs out fast. That is human — not a character flaw.</div></div>
+  <div class="card" style="border-color:rgba(79,142,247,0.4)"><div class="card-title">The goal is a common language — not a perfect child.</div><div class="card-body">This framework helps you and your child find a middle ground — a way to hear each other before things explode.</div></div>
+  <button class="btn-back" onclick="goTo('screen-parent')">← Back</button>
+</div>
+
+<div class="screen" id="screen-parent-language">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Parent Mode</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">💬</div>
+  <h2>Words that open doors.</h2>
+  <div class="compare-row"><div class="compare-box compare-no"><div class="compare-label">Closes the door</div>"Why are you being so difficult?"</div><div class="compare-box compare-yes"><div class="compare-label">Opens the door</div>"Help me understand — what is hard right now?"</div></div>
+  <div class="compare-row"><div class="compare-box compare-no"><div class="compare-label">Closes the door</div>"Calm down right now."</div><div class="compare-box compare-yes"><div class="compare-label">Opens the door</div>"I can see your body is really upset. I am not going anywhere."</div></div>
+  <div class="compare-row"><div class="compare-box compare-no"><div class="compare-label">Closes the door</div>"You should know better by now."</div><div class="compare-box compare-yes"><div class="compare-label">Opens the door</div>"This is hard. Let us figure it out together."</div></div>
+  <div class="quote">"A child who feels connected wants to try harder for you."</div>
+  <button class="btn-back" onclick="goTo('screen-parent')">← Back</button>
+</div>
+
+<div class="screen" id="screen-parent-scenarios">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Parent Scenarios</span></div></div>
+  <h2>Real Family Situations.</h2>
+  <button class="btn" onclick="goTo('screen-ps-homework')">📚 Child refusing homework</button>
+  <button class="btn" onclick="goTo('screen-ps-teen')">🚪 Teen shuts down</button>
+  <button class="btn" onclick="goTo('screen-ps-lied')">😔 Child lied to me</button>
+  <button class="btn-back" onclick="goTo('screen-parent')">← Back</button>
+</div>
+
+<div class="screen" id="screen-ps-homework">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Parent Scenarios</span></div></div>
+  <div class="scenario-box"><div class="scenario-label">The situation</div>Your child has been home for an hour. Homework is not started. They are on their device. You have asked twice. The third time they say I will do it later.</div>
+  <h3>What do you do?</h3>
+  <button class="btn" onclick="pScenario('homework','take',this)">📵 Take the device immediately</button>
+  <button class="btn" onclick="pScenario('homework','ask',this)">🤔 Ask what is making it hard to start</button>
+  <button class="btn" onclick="pScenario('homework','sit',this)">💙 Sit with them and help them start the first step</button>
+  <div id="ps-homework-fb" class="feedback"></div>
+  <div id="ps-homework-tool" class="tool-box" style="display:none"><div class="tool-title">🧰 Your tool</div><div class="tool-body">Resistance to homework is often about overwhelm — not defiance. Asking what is making it hard or helping with the first small step works better than taking things away.</div></div>
+  <button class="btn-primary" id="ps-homework-next" onclick="goTo('screen-parent-scenarios')">Try another →</button>
+  <button class="btn-back" onclick="goTo('screen-parent-scenarios')">← Back</button>
+</div>
+
+<div class="screen" id="screen-ps-teen">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Parent Scenarios</span></div></div>
+  <div class="scenario-box"><div class="scenario-label">The situation</div>Your teen comes home and goes straight to their room. They are clearly upset. When you ask if they are okay they say fine and close the door.</div>
+  <h3>What do you do?</h3>
+  <button class="btn" onclick="pScenario('teen','push',this)">🚪 Keep knocking until they talk to you</button>
+  <button class="btn" onclick="pScenario('teen','note',this)">📝 Slide a note under the door — I am here when you are ready</button>
+  <button class="btn" onclick="pScenario('teen','wait',this)">🕐 Stay nearby and let them come to you</button>
+  <div id="ps-teen-fb" class="feedback"></div>
+  <div id="ps-teen-tool" class="tool-box" style="display:none"><div class="tool-title">🧰 Your tool</div><div class="tool-body">Teens often need to process alone before they can connect. Staying available without pressure keeps the door open without forcing it.</div></div>
+  <button class="btn-primary" id="ps-teen-next" onclick="goTo('screen-parent-scenarios')">Try another →</button>
+  <button class="btn-back" onclick="goTo('screen-parent-scenarios')">← Back</button>
+</div>
+
+<div class="screen" id="screen-ps-lied">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Parent Scenarios</span></div></div>
+  <div class="scenario-box"><div class="scenario-label">The situation</div>You found out your child lied to you. They looked you in the eyes and said something that was not true. You feel hurt and betrayed on top of angry.</div>
+  <h3>What do you do first?</h3>
+  <button class="btn" onclick="pScenario('lied','confront',this)">😤 Confront them immediately while you are angry</button>
+  <button class="btn" onclick="pScenario('lied','calm',this)">😮‍💨 Wait until you are calm — then address it directly</button>
+  <button class="btn" onclick="pScenario('lied','both',this)">💙 Wait until calm — then address both the lie and the why</button>
+  <div id="ps-lied-fb" class="feedback"></div>
+  <div id="ps-lied-tool" class="tool-box" style="display:none"><div class="tool-title">🧰 Your tool</div><div class="tool-body">Children often lie because the truth feels too risky. Addressing both the lie AND the reason it happened calmly teaches honesty better than punishment alone.</div></div>
+  <button class="btn-primary" id="ps-lied-next" onclick="goTo('screen-parent-scenarios')">Try another →</button>
+  <button class="btn-back" onclick="goTo('screen-parent-scenarios')">← Back</button>
+</div>
+
+<div class="screen" id="screen-parent-repair">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Parent Mode</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">🔧</div>
+  <h2>Repair is possible. Always.</h2>
+  <div class="quote green">"When you go back and repair — you teach your child something they will carry for life."</div>
+  <div class="step-box"><div class="step-num" style="color:var(--green);">1</div><div><div class="step-title">Wait until you are both calm.</div><div class="step-body">Repair cannot happen in the middle of the storm.</div></div></div>
+  <div class="step-box"><div class="step-num" style="color:var(--green);">2</div><div><div class="step-title">Name what happened honestly.</div><div class="step-body">"I got really frustrated and I said something that was not fair to you. I am sorry."</div></div></div>
+  <div class="step-box"><div class="step-num" style="color:var(--green);">3</div><div><div class="step-title">Listen to their experience.</div><div class="step-body">"How did that feel for you?" Then just listen. Do not defend.</div></div></div>
+  <div class="step-box"><div class="step-num" style="color:var(--green);">4</div><div><div class="step-title">Reconnect.</div><div class="step-body">"I love you. We are okay. Let us try again."</div></div></div>
+  <button class="btn-back" onclick="goTo('screen-parent')">← Back</button>
+</div>
+
+<!-- TEACHER -->
+<div class="screen" id="screen-teacher">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Educator Mode</span></div></div>
+  <span class="badge badge-teacher">🏫 Teachers and Counselors</span>
+  <div style="font-size:48px;margin-bottom:14px;">📚</div>
+  <h1>You already see what others miss.</h1>
+  <p>A shared language that adds to everything you already know.</p>
+  <div class="quote" style="border-left-color:var(--accent2);">"Every behavior is communication. The question is — does anyone in the room speak that language?"</div>
+  <div class="tool-list">
+    <div class="tool-card" onclick="goTo('screen-teacher-behavior')"><div class="tool-card-icon">🧠</div><div class="tool-card-content"><div class="tool-card-title">Student Behavior</div><div class="tool-card-sub">What acting out is really saying</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-teacher-missing')"><div class="tool-card-icon">🧰</div><div class="tool-card-content"><div class="tool-card-title">Missing Tool Principle</div><div class="tool-card-sub">Find what the student needs</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-teacher-language')"><div class="tool-card-icon">💬</div><div class="tool-card-content"><div class="tool-card-title">What to Say</div><div class="tool-card-sub">Words that reach students</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-teacher-scenarios')"><div class="tool-card-icon">🎮</div><div class="tool-card-content"><div class="tool-card-title">Educator Scenarios</div><div class="tool-card-sub">Complex classroom situations</div></div><div class="tool-card-arrow">›</div></div>
+  </div>
+  <button class="btn-back" onclick="goTo('screen-home')">← Back to home</button>
+</div>
+
+<div class="screen" id="screen-teacher-behavior">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Educator Mode</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">🧠</div>
+  <h2>The behavior is not the problem.</h2>
+  <p>When a student acts out — that behavior is a message. It is the only language they have right now.</p>
+  <div class="quote" style="border-left-color:var(--accent2);">"Stop asking what is wrong with this student. Start asking what this student is trying to tell me."</div>
+  <div class="card" style="border-color:rgba(167,139,250,0.4)"><div class="card-title">The four needs most often underneath difficult behavior:</div><div class="card-body">Control — Fairness — Connection — Safety<br><br>When a student feels any of these are missing — their behavior tells you before their words do.</div></div>
+  <button class="btn-back" onclick="goTo('screen-teacher')">← Back</button>
+</div>
+
+<div class="screen" id="screen-teacher-missing">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Educator Mode</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">🧰</div>
+  <h2>The Missing Tool Principle.</h2>
+  <p>When a student keeps struggling — ask a different question.</p>
+  <div class="card" style="border-color:rgba(167,139,250,0.4);padding:20px;text-align:center;"><div class="card-title" style="font-size:17px;">Instead of asking what is wrong with this student</div><div class="card-body" style="font-size:16px;margin-top:10px;">Ask: <strong style="color:var(--accent2);">What tool might be missing?</strong></div></div>
+  <div class="quote" style="border-left-color:var(--accent2);">"A plumber with one wrench is not a bad plumber. They just need more tools for the job. Students are the same."</div>
+  <button class="btn-back" onclick="goTo('screen-teacher')">← Back</button>
+</div>
+
+<div class="screen" id="screen-teacher-language">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Educator Mode</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">💬</div>
+  <h2>Words that reach students.</h2>
+  <div class="compare-row"><div class="compare-box compare-no"><div class="compare-label">Shuts it down</div>"You know better than this."</div><div class="compare-box compare-yes"><div class="compare-label">Opens it up</div>"Help me understand what is happening for you right now."</div></div>
+  <div class="compare-row"><div class="compare-box compare-no"><div class="compare-label">Shuts it down</div>"Calm down right now or there will be consequences."</div><div class="compare-box compare-yes"><div class="compare-label">Opens it up</div>"I can see you are really upset. Take a minute. I am not going anywhere."</div></div>
+  <div class="compare-row"><div class="compare-box compare-no"><div class="compare-label">Shuts it down</div>"Why do you always do this?"</div><div class="compare-box compare-yes"><div class="compare-label">Opens it up</div>"Something keeps getting in the way. Let us figure out what it is."</div></div>
+  <button class="btn-back" onclick="goTo('screen-teacher')">← Back</button>
+</div>
+
+<div class="screen" id="screen-teacher-scenarios">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Educator Scenarios</span></div></div>
+  <h2>Situations You Know Well.</h2>
+  <button class="btn" onclick="goTo('screen-es-outburst')">💥 Student outburst in class</button>
+  <button class="btn" onclick="goTo('screen-es-shutdown')">🫥 Student stops engaging</button>
+  <button class="btn" onclick="goTo('screen-es-repeat')">🔄 Same student same pattern</button>
+  <button class="btn-back" onclick="goTo('screen-teacher')">← Back</button>
+</div>
+
+<div class="screen" id="screen-es-outburst">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Educator Scenarios</span></div></div>
+  <div class="scenario-box"><div class="scenario-label">The situation</div>Mid-lesson a student suddenly pushes their chair back loudly says this is stupid and puts their head down. The class goes quiet. Every eye is on you.</div>
+  <h3>What do you do first?</h3>
+  <button class="btn" onclick="eScenario('outburst','address',this)">😤 Address the behavior in front of the class immediately</button>
+  <button class="btn" onclick="eScenario('outburst','continue',this)">📚 Continue teaching — address it quietly after class</button>
+  <button class="btn" onclick="eScenario('outburst','check',this)">💙 Give the class a task — then quietly check in with the student</button>
+  <div id="es-outburst-fb" class="feedback"></div>
+  <div id="es-outburst-tool" class="tool-box" style="display:none"><div class="tool-title">🧰 Your tool</div><div class="tool-body">Public correction usually escalates. Giving the class a task and checking in quietly removes the audience and gives you real information about what happened.</div></div>
+  <button class="btn-primary purple" id="es-outburst-next" onclick="goTo('screen-teacher-scenarios')">Try another →</button>
+  <button class="btn-back" onclick="goTo('screen-teacher-scenarios')">← Back</button>
+</div>
+
+<div class="screen" id="screen-es-shutdown">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Educator Scenarios</span></div></div>
+  <div class="scenario-box"><div class="scenario-label">The situation</div>A student who used to participate has gone quiet over the past two weeks. Nothing dramatic has happened but something has clearly shifted.</div>
+  <h3>What do you do?</h3>
+  <button class="btn" onclick="eScenario('shutdown','wait',this)">⏳ Wait and see — maybe it will pass</button>
+  <button class="btn" onclick="eScenario('shutdown','note',this)">📝 Leave a brief private note — I noticed and I am here</button>
+  <button class="btn" onclick="eScenario('shutdown','ask',this)">💙 Find a quiet moment to check in one on one</button>
+  <div id="es-shutdown-fb" class="feedback"></div>
+  <div id="es-shutdown-tool" class="tool-box" style="display:none"><div class="tool-title">🧰 Your tool</div><div class="tool-body">A student who withdraws is often waiting to see if anyone notices. A private note or quiet check in says I see you without putting them on the spot.</div></div>
+  <button class="btn-primary purple" id="es-shutdown-next" onclick="goTo('screen-teacher-scenarios')">Try another →</button>
+  <button class="btn-back" onclick="goTo('screen-teacher-scenarios')">← Back</button>
+</div>
+
+<div class="screen" id="screen-es-repeat">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Educator Scenarios</span></div></div>
+  <div class="scenario-box"><div class="scenario-label">The situation</div>You have the same student in your office for the third time this month. Same behavior. Same conversation. Same outcome. You are running out of ideas.</div>
+  <h3>What do you shift in your approach?</h3>
+  <button class="btn" onclick="eScenario('repeat','same',this)">🔄 Same conversation — maybe it will eventually stick</button>
+  <button class="btn" onclick="eScenario('repeat','missing',this)">🧰 Ask — what tool is missing that keeps creating this pattern?</button>
+  <button class="btn" onclick="eScenario('repeat','student',this)">💬 Ask the student directly — what do you think keeps happening?</button>
+  <div id="es-repeat-fb" class="feedback"></div>
+  <div id="es-repeat-tool" class="tool-box" style="display:none"><div class="tool-title">🧰 Your tool</div><div class="tool-body">When the same conversation produces the same result — the conversation needs to change. Asking what tool is missing or asking the student directly often breaks the cycle.</div></div>
+  <button class="btn-primary purple" id="es-repeat-next" onclick="goTo('screen-teacher-scenarios')">Try another →</button>
+  <button class="btn-back" onclick="goTo('screen-teacher-scenarios')">← Back</button>
+</div>
+
+<!-- FEELINGS -->
+<div class="screen" id="screen-feelings">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Understanding Feelings</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">💭</div>
+  <h1>Understanding Feelings</h1>
+  <p>No feeling is bad. Feelings are information. Here is what to do with them.</p>
+  <div class="quote">"Feelings give us information. Choices help shape our path."</div>
+  <button class="feeling-btn" onclick="generalFeelingTap('fear',this)"><span class="feeling-emoji">😨</span><div><div class="feeling-label">Fear</div><div class="feeling-sub">Tap to learn more</div></div></button>
+  <button class="feeling-btn" onclick="generalFeelingTap('anger',this)"><span class="feeling-emoji">😠</span><div><div class="feeling-label">Anger</div><div class="feeling-sub">Tap to learn more</div></div></button>
+  <button class="feeling-btn" onclick="generalFeelingTap('sadness',this)"><span class="feeling-emoji">😢</span><div><div class="feeling-label">Sadness</div><div class="feeling-sub">Tap to learn more</div></div></button>
+  <button class="feeling-btn" onclick="generalFeelingTap('excitement',this)"><span class="feeling-emoji">😄</span><div><div class="feeling-label">Excitement</div><div class="feeling-sub">Tap to learn more</div></div></button>
+  <button class="feeling-btn" onclick="generalFeelingTap('embarrassment',this)"><span class="feeling-emoji">😳</span><div><div class="feeling-label">Embarrassment</div><div class="feeling-sub">Tap to learn more</div></div></button>
+  <div id="general-feeling-fb" class="feedback blue"></div>
+  <button class="btn-back" onclick="goTo('screen-home')">← Back to home</button>
+</div>
+
+<!-- SCENARIOS -->
+<div class="screen" id="screen-scenarios">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Scenarios and Practice</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">🎮</div>
+  <h1>Real Life Practice</h1>
+  <p>Practice real situations before they happen. No perfect answers — just honest thinking.</p>
+  <div class="tool-list">
+    <div class="tool-card" onclick="goTo('screen-child-scenarios')"><div class="tool-card-icon">🧒</div><div class="tool-card-content"><div class="tool-card-title">Child Scenarios</div><div class="tool-card-sub">Everyday situations ages 6-10</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-teen-scenarios')"><div class="tool-card-icon">🧑</div><div class="tool-card-content"><div class="tool-card-title">Teen Scenarios</div><div class="tool-card-sub">Real situations teens actually face</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-parent-scenarios')"><div class="tool-card-icon">👨‍👩‍👧</div><div class="tool-card-content"><div class="tool-card-title">Parent Scenarios</div><div class="tool-card-sub">Family situations to practice</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-teacher-scenarios')"><div class="tool-card-icon">🏫</div><div class="tool-card-content"><div class="tool-card-title">Educator Scenarios</div><div class="tool-card-sub">Complex classroom situations</div></div><div class="tool-card-arrow">›</div></div>
+  </div>
+  <button class="btn-back" onclick="goTo('screen-home')">← Back to home</button>
+</div>
+
+<!-- REPAIR -->
+<div class="screen" id="screen-repair">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Repair and Reflection</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">🔧</div>
+  <h1>Repair is possible. Always.</h1>
+  <p>Every relationship can survive hard moments.</p>
+  <div class="tool-list">
+    <div class="tool-card" onclick="goTo('screen-child-repair')"><div class="tool-card-icon">🧒</div><div class="tool-card-content"><div class="tool-card-title">Repair for Children</div><div class="tool-card-sub">Simple warm steps ages 6-10</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-teen-repair')"><div class="tool-card-icon">🧑</div><div class="tool-card-content"><div class="tool-card-title">Repair for Teens</div><div class="tool-card-sub">Apology vs repair — what actually works</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-parent-repair')"><div class="tool-card-icon">👨‍👩‍👧</div><div class="tool-card-content"><div class="tool-card-title">Repair for Parents</div><div class="tool-card-sub">After hard parenting moments</div></div><div class="tool-card-arrow">›</div></div>
+    <div class="tool-card" onclick="goTo('screen-teacher-repair')"><div class="tool-card-icon">🏫</div><div class="tool-card-content"><div class="tool-card-title">Repair for Educators</div><div class="tool-card-sub">With students parents and classes</div></div><div class="tool-card-arrow">›</div></div>
+  </div>
+  <button class="btn-back" onclick="goTo('screen-home')">← Back to home</button>
+</div>
+
+<div class="screen" id="screen-child-repair">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Child Repair</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">🔧</div>
+  <h2>Everybody makes mistakes.</h2>
+  <p>What makes someone strong is knowing how to make things better after something goes wrong.</p>
+  <div class="quote green">"You are not your mistake. You are what you do next."</div>
+  <div class="step-box"><div class="step-num">1</div><div><div class="step-title">Calm down first.</div><div class="step-body">You cannot repair when your feelings are still really big.</div></div></div>
+  <div class="step-box"><div class="step-num">2</div><div><div class="step-title">Say what happened.</div><div class="step-body">"I said something mean." Say it simply and honestly.</div></div></div>
+  <div class="step-box"><div class="step-num">3</div><div><div class="step-title">Say you are sorry.</div><div class="step-body">"I am sorry I did that." A real sorry — because you mean it.</div></div></div>
+  <div class="step-box"><div class="step-num">4</div><div><div class="step-title">Ask how to make it better.</div><div class="step-body">"What can I do to help fix it?" or "Are we okay?"</div></div></div>
+  <button class="btn-back" onclick="goTo('screen-repair')">← Back</button>
+</div>
+
+<div class="screen" id="screen-teen-repair">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Teen Repair</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">🔧</div>
+  <h2>Repair is not weakness. It is one of the hardest things a person can do.</h2>
+  <div class="quote amber">"An apology is words. Repair is action. Both matter — but repair matters more."</div>
+  <div class="step-box"><div class="step-num" style="color:var(--amber);">1</div><div><div class="step-title">Wait until you are both calm.</div><div class="step-body">Repair attempted in the middle of a fight almost always fails.</div></div></div>
+  <div class="step-box"><div class="step-num" style="color:var(--amber);">2</div><div><div class="step-title">Own what you did — without excuses.</div><div class="step-body">"I said something really hurtful." The but cancels the repair.</div></div></div>
+  <div class="step-box"><div class="step-num" style="color:var(--amber);">3</div><div><div class="step-title">Listen to how it landed for them.</div><div class="step-body">"How did that feel for you?" Then actually listen. Do not defend.</div></div></div>
+  <div class="step-box"><div class="step-num" style="color:var(--amber);">4</div><div><div class="step-title">Ask what would help and follow through.</div><div class="step-body">"What do you need from me right now?" Then do what you say.</div></div></div>
+  <button class="btn-back" onclick="goTo('screen-repair')">← Back</button>
+</div>
+
+<div class="screen" id="screen-teacher-repair">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Educator Repair</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">🔧</div>
+  <h2>Even the best educators have hard moments.</h2>
+  <div class="quote" style="border-left-color:var(--accent2);">"When an educator repairs with a student — they model something that student may never have seen before."</div>
+  <div class="card" style="border-color:rgba(167,139,250,0.4)"><div class="card-title">Repairing with a student:</div><div class="card-body">"Earlier I handled that in a way that was not fair to you. I am sorry. You did not deserve that."</div></div>
+  <div class="card" style="border-color:rgba(167,139,250,0.4)"><div class="card-title">Repairing with a whole class:</div><div class="card-body">"Before we start today I want to name something. Yesterday did not go the way I wanted. Let us start fresh."</div></div>
+  <div class="card" style="border-color:rgba(167,139,250,0.4)"><div class="card-title">Repairing with a parent:</div><div class="card-body">"I wanted to follow up on our last conversation. I want to make sure we are on the same team for your child."</div></div>
+  <button class="btn-back" onclick="goTo('screen-repair')">← Back</button>
+</div>
+
+<!-- PREMIUM -->
+<div class="screen" id="screen-premium">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Premium Content</span></div></div>
+  <div class="premium-badge">⭐ Premium</div>
+  <div style="font-size:52px;text-align:center;margin-bottom:14px;">⭐</div>
+  <h1 style="text-align:center;">Unlock the full framework.</h1>
+  <p style="text-align:center;color:var(--muted);">Free gives you the tools. Premium gives you the full journey.</p>
+  <div class="honest-box"><div class="honest-title">An honest note</div><div class="honest-body">The free version of this site will always exist. No family should be locked out because of cost. Premium adds depth and structure for families ready to go further.</div></div>
+  <div class="divider"></div>
+  <div class="plan-card"><div class="plan-label">Free — Always available</div><div class="plan-price">$0</div><div class="plan-period">Forever free</div><ul class="plan-features"><li class="included">Everything you see on this site</li><li class="included">All four group modes</li><li class="included">All scenarios and repair tools</li><li>Family Session Guides</li><li>Progress Tracker</li><li>Printable Worksheets</li></ul></div>
+  <div class="plan-card featured"><div class="plan-label" style="color:var(--gold);">⭐ Family Premium — Most popular</div><div class="plan-price">$9.99<span style="font-size:18px;font-weight:400;color:var(--muted);">/month</span></div><div class="plan-period">Or $79.99/year — save 33%</div><ul class="plan-features"><li class="included">Everything in Free</li><li class="included">All 5 Family Session Guides</li><li class="included">Practice Tracker with badges</li><li class="included">Printable Worksheets and Cards</li><li class="included">Advanced Parent Tools</li><li class="included">Extended Scenario Library</li></ul><button class="btn-gold" onclick="alert('Enrollment coming soon! Thank you for your interest in Eric\'s Superpower of Choice.')">Start Family Premium →</button></div>
+  <button class="btn-back" onclick="goTo('screen-home')">← Back to home</button>
+</div>
+
+<!-- FEEDBACK -->
+<div class="screen" id="screen-feedback">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Share Your Thoughts</span></div></div>
+  <div style="font-size:48px;margin-bottom:14px;">💌</div>
+  <h1>We want to hear from you!</h1>
+  <p>Whether you're a kid, a teen, a parent, or a teacher — your thoughts help make this better. Answer however many you'd like, then tap Send.</p>
+
+  <div class="card">
+    <div class="card-title">1. What did you think overall?</div>
+    <div class="feedback-faces">
+      <button class="face-btn" data-q="overall" data-val="Loved it">😍</button>
+      <button class="face-btn" data-q="overall" data-val="Liked it">🙂</button>
+      <button class="face-btn" data-q="overall" data-val="It was okay">😐</button>
+      <button class="face-btn" data-q="overall" data-val="Didn't like it">😕</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">2. Was it easy to use?</div>
+    <div class="feedback-faces">
+      <button class="face-btn" data-q="easy" data-val="Very easy">😍</button>
+      <button class="face-btn" data-q="easy" data-val="Pretty easy">🙂</button>
+      <button class="face-btn" data-q="easy" data-val="A little confusing">😐</button>
+      <button class="face-btn" data-q="easy" data-val="Hard to use">😕</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">3. What did you like most?</div>
+    <textarea class="feedback-input" id="fb-liked" rows="3" placeholder="Type here... (optional)"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title">4. What would you change or add?</div>
+    <textarea class="feedback-input" id="fb-change" rows="3" placeholder="Type here... (optional)"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title">5. Would you pay for extra content? (like family guides, worksheets, or a tracker)</div>
+    <div class="feedback-faces">
+      <button class="face-btn-wide" data-q="pay" data-val="Yes, definitely">✅ Yes</button>
+      <button class="face-btn-wide" data-q="pay" data-val="Maybe">🤔 Maybe</button>
+      <button class="face-btn-wide" data-q="pay" data-val="No">❌ No</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">6. Who are you? (optional)</div>
+    <textarea class="feedback-input" id="fb-who" rows="2" placeholder="e.g. parent, teacher, kid, age... (optional)"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Your name or email (optional, in case we want to follow up)</div>
+    <textarea class="feedback-input" id="fb-contact" rows="2" placeholder="Type here... (optional)"></textarea>
+  </div>
+
+  <button class="btn-primary green show" onclick="sendFeedback()">💌 Send Feedback</button>
+  <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:-4px;">This opens your email app with your answers filled in. You can review before sending.</p>
+  <button class="btn-back" onclick="goTo('screen-home')">← Back to home</button>
+</div>
+
+<!-- ABOUT -->
+<div class="screen" id="screen-about">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">About</span></div></div>
+  <h1>About This Project</h1>
+  <div class="about-card"><div class="about-title">The Vision</div><div class="about-body">Eric's Superpower of Choice was created by Charlie — inspired by his grandson Eric, who has ADD and may be on the spectrum. It was built for every child, teen, parent, and educator who has ever felt like nobody was speaking their language.</div></div>
+  <div class="about-card"><div class="about-title">The Mission</div><div class="about-body">Pause. Think. Choose. Grow. Every situation gives you a choice. Every choice creates a consequence. Better choices create better outcomes.</div></div>
+  <div class="about-card"><div class="about-title">The Core Belief</div><div class="about-body">Children are not mistakes. They are learners. Every child should leave this site feeling — I matter. I have value. I can learn. I can grow. I am not alone.</div></div>
+  <div class="about-card"><div class="about-title">The Promise</div><div class="about-body">The core tools will always be free. No family should be locked out because of cost.</div></div>
+  <div class="quote">"Will this help a child feel accepted, capable, and able to grow? If yes — it belongs."</div>
+  <div class="footer">© 2026 Charlie. Eric's Superpower of Choice. All Rights Reserved.</div>
+  <button class="btn-back" onclick="goTo('screen-home')">← Back to home</button>
+</div>
+
+<!-- LEGAL -->
+<div class="screen" id="screen-legal">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Terms of Use</span></div></div>
+  <h1>Terms of Use</h1>
+  <p style="color:var(--muted);font-size:14px;">Last updated: 2026</p>
+  <div class="card"><div class="card-title">Ownership and Copyright</div><div class="card-body">© 2026 Charlie. Eric's Superpower of Choice. All Rights Reserved. All content on this site is the original intellectual property of Charlie. No content may be copied, reproduced, or distributed without written permission.</div></div>
+  <div class="card"><div class="card-title">Permitted Use</div><div class="card-body">You may use this site for personal, non-commercial, educational purposes within your own family or classroom.</div></div>
+  <div class="card"><div class="card-title">Educational Disclaimer</div><div class="card-body">The content on this site is provided for educational purposes only. It is not a substitute for professional mental health or medical advice. If you are experiencing a mental health crisis, please call 988.</div></div>
+  <button class="btn-back" onclick="goTo('screen-home')">← Back to home</button>
+</div>
+
+<!-- PRIVACY -->
+<div class="screen" id="screen-privacy">
+  <div class="top-bar"><div class="top-logo"><span class="top-star">⭐</span><span class="top-title">Privacy Policy</span></div></div>
+  <h1>Privacy Policy</h1>
+  <p style="color:var(--muted);font-size:14px;">Last updated: 2026</p>
+  <div class="card"><div class="card-title">Our Commitment</div><div class="card-body">Eric's Superpower of Choice is committed to protecting the privacy of every person who uses this site — especially children.</div></div>
+  <div class="card"><div class="card-title">Information We Collect</div><div class="card-body">For free users — we do not collect personal information. For premium subscribers — we collect only what is necessary to process your subscription.</div></div>
+  <div class="card"><div class="card-title">Children's Privacy</div><div class="card-body">We do not knowingly collect personal information from children under 13 without parental consent. This site is designed to be used by children with parent or caregiver guidance.</div></div>
+  <button class="btn-back" onclick="goTo('screen-home')">← Back to home</button>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="nav-item active" id="nav-home" onclick="goTo('screen-home');setActive('nav-home')"><span class="nav-icon">🏠</span><span class="nav-label">HOME</span></div>
+  <div class="nav-item" id="nav-scenarios" onclick="goTo('screen-scenarios');setActive('nav-scenarios')"><span class="nav-icon">🎮</span><span class="nav-label">PRACTICE</span></div>
+  <div class="nav-item" id="nav-repair" onclick="goTo('screen-repair');setActive('nav-repair')"><span class="nav-icon">🔧</span><span class="nav-label">REPAIR</span></div>
+  <div class="nav-item" id="nav-premium" onclick="goTo('screen-premium');setActive('nav-premium')"><span class="nav-icon">⭐</span><span class="nav-label">PREMIUM</span></div>
+  <div class="nav-item" id="nav-about" onclick="goTo('screen-about');setActive('nav-about')"><span class="nav-icon">ℹ️</span><span class="nav-label">ABOUT</span></div>
+</nav>
+
+<script>
+function goTo(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const el=document.getElementById(id);if(el)el.classList.add('active');window.scrollTo(0,0);}
+function setActive(navId){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));const el=document.getElementById(navId);if(el)el.classList.add('active');}
+
+const CF={angry:'😠 Angry feelings tell you something feels unfair or blocked. You can pause, use words, or walk away to calm down.',worried:'😟 Worried feelings tell you something feels uncertain or scary. Take a breath, ask for help, or talk to someone you trust.',sad:'😢 Sad feelings tell you something important feels lost. Let yourself feel it, ask for a hug, or talk to someone.',excited:'😄 Excited feelings tell you something good is coming! Enjoy it and remember to use self-control.'};
+let cfc=0;
+function childFeelingTap(f,btn){btn.classList.toggle('selected');const fb=document.getElementById('child-feeling-fb');fb.textContent=CF[f];fb.className='feedback blue show';cfc++;if(cfc>=2)document.getElementById('child-feeling-next').classList.add('show');}
+
+const TF={frustration:'🔶 It might mean something feels blocked, unfair, or disrespected. Try: name it out loud, walk away first, say what you need calmly.',anxiety:'🔶 Too much is happening at once. Try: break it into one small step, talk to someone you trust, breathe slowly.',sadness:'🔶 Something may feel lost or you feel disconnected. Try: let yourself feel it, reach out to one person, do something that grounds you.',shame:'🔶 You care what others think or you feel like you messed up. Try: remember everyone messes up, repair if needed, talk to someone who gets it.'};
+let tfc=0;
+function teenFeelingTap(f,btn){btn.classList.toggle('selected');const fb=document.getElementById('teen-feeling-fb');fb.textContent=TF[f];fb.className='feedback amber show';tfc++;if(tfc>=2)document.getElementById('teen-feeling-next').classList.add('show');}
+
+const GF={fear:'😨 Fear — Something feels unsafe or uncertain. Helpful: Take a breath, ask for help, tell the truth, take one brave step.',anger:'😠 Anger — Something feels unfair, blocked, or important. Helpful: Pause, use words, walk away to calm down.',sadness:'😢 Sadness — Something may feel lost or lonely. Helpful: Ask for comfort, talk to someone, let yourself feel it.',excitement:'😄 Excitement — Something feels fun or hopeful. Helpful: Enjoy it, share it kindly, use self-control.',embarrassment:'😳 Embarrassment — You feel noticed or worried what others think. Helpful: Take a breath, tell the truth, repair if needed.'};
+function generalFeelingTap(f,btn){document.querySelectorAll('#screen-feelings .feeling-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');const fb=document.getElementById('general-feeling-fb');fb.textContent=GF[f];fb.className='feedback blue show';}
+
+const CSR={leftout:{cry:{cls:'amber',msg:'💛 Feeling sad is okay. But staying alone keeps the sad feeling growing. What is one small step you could try?'},ask:{cls:'green',msg:'✅ Asking calmly gives you a real chance to join in. That took courage!'},other:{cls:'green',msg:'✅ Finding something else fun is a strong choice. You kept your day good even when something felt bad!'}},losing:{flip:{cls:'amber',msg:'💛 Flipping the board makes everyone feel bad. What could you do with that big feeling instead?'},breath:{cls:'green',msg:'✅ Taking a breath and saying good game when you really do not feel like it — that is one of the strongest things you can do!'},leave:{cls:'green',msg:'✅ Walking away to cool down is smart. You gave yourself space before the feeling got bigger.'}},mistake:{blame:{cls:'amber',msg:'💛 It was an accident — but leaving does not fix the hurt feeling your friend has. What could you add?'},sorry:{cls:'green',msg:'✅ Sorry plus helping fix it — that is real repair. Your friend will feel that. Well done!'},fix:{cls:'green',msg:'✅ Asking how to help fix it shows you really care. That is one of the best things you can say after a mistake!'}},meanwords:{back:{cls:'amber',msg:'💛 Saying something mean back might feel good for one second. But then you both feel worse.'},walk:{cls:'green',msg:'✅ Walking away and telling a trusted adult keeps you safe and out of trouble. Smart move!'},calm:{cls:'green',msg:'✅ That was not okay and walking away is powerful. You said what needed to be said without making it bigger!'}}};
+function cScenario(s,c,btn){document.querySelectorAll('#screen-cs-'+s+' .btn').forEach(b=>{b.style.opacity='0.5';});btn.style.opacity='1';const r=CSR[s][c];const fb=document.getElementById('cs-'+s+'-fb');fb.textContent=r.msg;fb.className='feedback '+r.cls+' show';document.getElementById('cs-'+s+'-tool').style.display='block';document.getElementById('cs-'+s+'-next').classList.add('show');}
+
+const TSR={ghosted:{keep:{cls:'amber',msg:'🔶 Chasing someone who is not responding usually makes you feel worse. What would one message and then letting go look like?'},direct:{cls:'green',msg:'✅ One honest message is fair and brave. After that the ball is in their court.'},space:{cls:'green',msg:'✅ Giving it space while investing in other people is healthy. You are not defined by one friendship.'}},tsparent:{nothing:{cls:'amber',msg:'🔶 They heard the snap but not the reason. Explaining when calm gives them a chance to understand.'},calm:{cls:'green',msg:'✅ Waiting until calm and then explaining what you needed — that is really good communication.'},ask:{cls:'green',msg:'✅ Asking for 10 minutes is completely reasonable. Most parents will respect a calm ask.'}},overwhelmed:{alone:{cls:'amber',msg:'🔶 Carrying it alone makes it heavier. Just saying I am having a hard time to one person is enough.'},one:{cls:'green',msg:'✅ One person. That is all it takes to feel less alone.'},small:{cls:'green',msg:'✅ One small thing you can finish today reminds your brain you are capable. That is the beginning of getting unstuck.'}}};
+function tScenario(s,c,btn){const sid=s==='tsparent'?'screen-ts-parent':'screen-ts-'+s;document.querySelectorAll('#'+sid+' .btn').forEach(b=>{b.style.opacity='0.5';});btn.style.opacity='1';const r=TSR[s][c];const fid=s==='tsparent'?'ts-tsparent-fb':'ts-'+s+'-fb';const nid=s==='tsparent'?'ts-tsparent-next':'ts-'+s+'-next';const tid=s==='tsparent'?'ts-tsparent-tool':'ts-'+s+'-tool';document.getElementById(fid).textContent=r.msg;document.getElementById(fid).className='feedback '+r.cls+' show';document.getElementById(tid).style.display='block';document.getElementById(nid).classList.add('show');}
+
+function missingTool(c,btn){document.querySelectorAll('#screen-teen-missing .btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');const msgs={calm:'🧰 Your missing tool: a body reset. Try the Big Breath or Move Your Body before you try to think through anything.',words:'🧰 Your missing tool: a sentence starter. Try: I feel ___ when ___ because I need ___.',repair:'🧰 Your missing tool: the four-step repair process. It starts with just saying I want to fix this.',ask:'🧰 Your missing tool: a simple ask. Try: I need help with something — can I talk to you?'};document.getElementById('missing-fb').textContent=msgs[c];document.getElementById('missing-fb').className='feedback amber show';document.getElementById('missing-next').classList.add('show');}
+
+const PSR={homework:{take:{cls:'blue',msg:'💙 Taking the device might work short term. But it does not help you understand why homework is not getting started.'},ask:{cls:'green',msg:'✅ Asking what is making it hard opens a real conversation. The answer often surprises parents and leads to a real solution.'},sit:{cls:'green',msg:'✅ The first step is almost always the hardest. Sitting with them and starting together removes the overwhelm.'}},teen:{push:{cls:'amber',msg:'🔶 Pushing usually creates more distance. Teens who feel pressured often push back harder.'},note:{cls:'green',msg:'✅ A note says I see you AND I am not going anywhere AND there is no pressure. That is a gift.'},wait:{cls:'green',msg:'✅ Staying nearby without hovering tells them you are available. Many teens will come to you when they are ready.'}},lied:{confront:{cls:'amber',msg:'🔶 Confronting while angry usually turns into a power struggle.'},calm:{cls:'green',msg:'✅ Waiting until calm means your words land clearly instead of as an attack.'},both:{cls:'green',msg:'✅ Addressing both the behavior and the reason calmly is the most complete response. Well done.'}}};
+function pScenario(s,c,btn){document.querySelectorAll('#screen-ps-'+s+' .btn').forEach(b=>{b.style.opacity='0.5';});btn.style.opacity='1';const r=PSR[s][c];document.getElementById('ps-'+s+'-fb').textContent=r.msg;document.getElementById('ps-'+s+'-fb').className='feedback '+r.cls+' show';document.getElementById('ps-'+s+'-tool').style.display='block';document.getElementById('ps-'+s+'-next').classList.add('show');}
+
+const ESR={outburst:{address:{cls:'amber',msg:'💜 Public correction almost always escalates. The class watches how you handle it — your calm is the most powerful tool.'},continue:{cls:'green',msg:'✅ Continuing and addressing after is reasonable. The student has time to regulate before a private conversation.'},check:{cls:'green',msg:'✅ Giving the class a task removes the audience. The quiet check in gets you real information and gives the student dignity.'}},shutdown:{wait:{cls:'amber',msg:'💜 Two weeks of withdrawal is already a signal. The sooner you reach out the smaller the door needs to be.'},note:{cls:'green',msg:'✅ A note is low pressure and high impact. It says I see you without requiring a public response.'},ask:{cls:'green',msg:'✅ A quiet one on one check in is one of the most powerful things you can do.'}},repeat:{same:{cls:'amber',msg:'💜 If the same conversation keeps producing the same result — the conversation needs to change.'},missing:{cls:'green',msg:'✅ The Missing Tool Principle was built for exactly this moment. Find the tool — change the pattern.'},student:{cls:'green',msg:'✅ Asking the student what they think keeps happening is one of the most underused tools in education.'}}};
+function eScenario(s,c,btn){document.querySelectorAll('#screen-es-'+s+' .btn').forEach(b=>{b.style.opacity='0.5';});btn.style.opacity='1';const r=ESR[s][c];document.getElementById('es-'+s+'-fb').textContent=r.msg;document.getElementById('es-'+s+'-fb').className='feedback '+(r.cls==='amber'?'amber':r.cls==='green'?'green':'purple')+' show';document.getElementById('es-'+s+'-tool').style.display='block';document.getElementById('es-'+s+'-next').classList.add('show');}
+
+// FEEDBACK PAGE
+document.querySelectorAll('#screen-feedback .face-btn, #screen-feedback .face-btn-wide').forEach(btn=>{
+  btn.addEventListener('click', function(){
+    const q = this.dataset.q;
+    document.querySelectorAll('#screen-feedback [data-q="'+q+'"]').forEach(b=>b.classList.remove('selected'));
+    this.classList.add('selected');
+  });
+});
+
+function sendFeedback(){
+  const getSelected = (q) => {
+    const el = document.querySelector('#screen-feedback [data-q="'+q+'"].selected');
+    return el ? el.dataset.val : 'No answer';
+  };
+  const overall = getSelected('overall');
+  const easy = getSelected('easy');
+  const pay = getSelected('pay');
+  const liked = document.getElementById('fb-liked').value || '(no answer)';
+  const change = document.getElementById('fb-change').value || '(no answer)';
+  const who = document.getElementById('fb-who').value || '(no answer)';
+  const contact = document.getElementById('fb-contact').value || '(no answer)';
+
+  const subject = "Feedback - Eric's Superpower of Choice";
+  const body = "Overall: " + overall + "\n"
+    + "Easy to use: " + easy + "\n"
+    + "What they liked most: " + liked + "\n"
+    + "What they would change: " + change + "\n"
+    + "Would pay for extra content: " + pay + "\n"
+    + "Who they are: " + who + "\n"
+    + "Contact info: " + contact;
+
+  const mailto = "mailto:charlie3391_3@outlook.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+  window.location.href = mailto;
+}
+</script>
+</body>
+</html>
